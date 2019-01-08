@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>HTML5 Canvas</title>
+</head>
+<body>
+  <div class="container">
+    <div id="controls">
+      <a id="save_img">Download As Image</a>
+      <a id="clear-canvas">Clear</a>
+    </div>
+    <canvas id="draw" width="1000" height="800"></canvas>
+    <div class="info">Use your mouse to draw</div>
+  </div> 
+
+  <script>
+    const canvas = document.querySelector('#draw');
+    const ctx = canvas.getContext('2d');
+    // canvas.width = window.innerWidth;
+    // canvas.height = window.innerHeight;
+    ctx.strokeStyle = '#BADA55';
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 81;
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    // ctx.globalCompositeOperation = 'multiply';
+
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    let hue = 0;
+    let direction = true;
+
+    function draw(e) {
+      if (!isDrawing) return; // stop the fn from running when they are not moused down
+      ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+      [lastX, lastY] = [e.offsetX, e.offsetY];
+
+      hue++;
+      if (hue >= 360) {
+        hue = 0;
+      }
+      if (ctx.lineWidth >= 81 || ctx.lineWidth <= 1) {
+        direction = !direction;
+      }
+
+      if(direction) {
+        ctx.lineWidth++;
+      } else {
+        ctx.lineWidth--;
+      }
+
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      [lastX, lastY] = [e.offsetX, e.offsetY];
+    });
+
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
+
+    var link = document.getElementById('save_img')
+      link.addEventListener('click', function(ev) {
+      link.href = canvas.toDataURL();
+      link.download = "mypainting.png";
+    }, false);
+
+    document.getElementById('clear-canvas').addEventListener('click', function() {
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }, false);
+
+  </script>
+
+  <style>
+    html, body {
+      margin: 0;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      }
+    .container {
+      background-image: url('http://ellefu.eu/images/paint-back.png');
+      background-color: lightslategray;
+      height: 100vh;
+      display: grid;
+      grid-template-columns: 1000px;
+      justify-content: center;
+      align-content: center;
+
+    }
+    #draw {
+      border: 1px solid rgba(0, 0, 0, 0.315);
+      -webkit-box-shadow: 0px 20px 8px -14px rgba(69,65,69,0.75);
+      -moz-box-shadow: 0px 20px 8px -14px rgba(69,65,69,0.75);
+      box-shadow: 0px 20px 8px -14px rgba(69,65,69,0.75); 
+      border-radius: 5px;
+    }
+    a {
+      color:black;
+      padding: 5px;
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+      transition: 0.1s;
+    }
+    a:hover {
+      cursor: pointer;
+      color: rgba(6, 154, 240, 0.829);
+      border-top: 4px solid rgba(6, 154, 240, 0.39);
+    }
+    #controls {
+      margin-left: 3px;
+    }
+    .info {
+      justify-self: center;
+    }
+  </style>
+
+</body>
+</html>
